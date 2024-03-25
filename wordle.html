@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Solver</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        input, button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Wordle Solver</h2>
+    <p>Enter your guess and feedback:</p>
+    <input type="text" id="guess" placeholder="Guess" value="arise" readonly>
+    <input type="text" id="feedback" placeholder="Feedback (e.g., XXGXX)">
+    <button onclick="processFeedback()">Submit</button>
+    <div id="suggestion"></div>
+
+    <script>
+        const wordList = ["abase", "abate", "abbey", /* Add more words here */ ];
+        let possibleWords = [...wordList]; // Clone the initial word list
+
+        function filterPossibleWords(guess, feedback) {
+            return possibleWords.filter(word => {
+                for (let i = 0; i < guess.length; i++) {
+                    if (feedback[i] === "G" && word[i] !== guess[i]) {
+                        return false;
+                    } else if (feedback[i] === "Y" && (!word.includes(guess[i]) || word[i] === guess[i])) {
+                        return false;
+                    } else if (feedback[i] === "X" && word.includes(guess[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        function processFeedback() {
+            const guess = document.getElementById('guess').value;
+            const feedback = document.getElementById('feedback').value.toUpperCase();
+            if (feedback === "GGGGG") {
+                document.getElementById('suggestion').innerText = "Yay! Solved it!";
+                return;
+            }
+
+            possibleWords = filterPossibleWords(guess, feedback);
+            if (possibleWords.length === 0) {
+                document.getElementById('suggestion').innerText = "No possible words left. Maybe there was a mistake in feedback?";
+            } else {
+                const nextGuess = possibleWords[0];
+                document.getElementById('suggestion').innerText = `Try with: ${nextGuess}`;
+                document.getElementById('guess').value = nextGuess; // Set next guess
+            }
+            document.getElementById('feedback').value = ""; // Reset feedback input
+        }
+    </script>
+</body>
+</html>
